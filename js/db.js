@@ -103,7 +103,7 @@ export const updateMyName = (fid, uid, name) => Promise.all([
   A.updateProfile(auth.currentUser, { displayName: name }),
 ]);
 
-// Bulk import (backup file or the old on-device version). items: {sleeps:{id:data}, meds:{...}, doses:{...}}
+// Bulk import from a backup file. items: {sleeps:{id:data}, meds:{...}, doses:{...}}
 export async function importAll(fid, items) {
   const writes = [];
   for (const c of ['sleeps', 'meds', 'doses']) for (const [id, data] of Object.entries(items[c] || {})) writes.push([c, id, data]);

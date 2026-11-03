@@ -7,7 +7,7 @@ import * as V from './views.js';
 const S = {
   screen: 'loading', authMode: 'signup', onboard: 'choose', tab: store.get('yz_tab', 'today'),
   user: null, userDoc: null, familyId: null, family: null, baby: null,
-  sleeps: [], meds: [], doses: {}, unsub: [], oldLocal: readOldLocal(),
+  sleeps: [], meds: [], doses: {}, unsub: [],
 };
 const root = $('#app');
 
@@ -121,16 +121,10 @@ async function onBabySubmit(form) {
   if (!baby.name) return (err.textContent = 'اكتب اسم الطفل.');
   if (!baby.birthDate) return (err.textContent = 'اختار تاريخ الميلاد.');
   if (baby.birthDate > dayKey(Date.now())) return (err.textContent = 'تاريخ الميلاد ماينفعش يبقى في المستقبل.');
-  const old = S.oldLocal?.baby?.profile; if (old?.notes) baby.notes = old.notes;
   if (baby.weight != null) baby.weightUpdated = Date.now();
   btn.disabled = true; err.textContent = '';
   try {
-    const fid = await db.createFamily(S.user, myName(), baby);
-    if ($('#bImport')?.checked && S.oldLocal) {
-      const n = await db.importAll(fid, withBy(S.oldLocal));
-      store.set('yazan_data_v1_migrated', '1');
-      toast(`اتنقلت ${n} حاجة من الموبايل.`);
-    }
+    await db.createFamily(S.user, myName(), baby);
   } catch (e) { console.warn(e); err.textContent = 'مقدرتش أحفظ. اتأكد من النت وجرّب تاني.'; btn.disabled = false; }
 }
 async function onJoinSubmit(form) {
@@ -139,9 +133,6 @@ async function onJoinSubmit(form) {
   btn.disabled = true; err.textContent = '';
   try { await db.joinFamily(S.user, myName(), code); toast('أهلاً! انضميت للعيلة.'); }
   catch (e) { console.warn(e); err.textContent = e.code === 'not-found' || e.code === 'permission-denied' ? 'الكود ده مش صحيح. اتأكد منه وجرّب تاني.' : 'مقدرتش أنضم. اتأكد من النت.'; btn.disabled = false; }
-}
-function readOldLocal() {
-  try { if (localStorage.getItem('yazan_data_v1_migrated')) return null; const d = JSON.parse(localStorage.getItem('yazan_data_v1')); return d && typeof d === 'object' ? d : null; } catch { return null; }
 }
 function withBy(d) {
   const uid = S.user.uid, out = { sleeps: {}, meds: {}, doses: {} };

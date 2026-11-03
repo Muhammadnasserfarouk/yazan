@@ -41,8 +41,7 @@ export function viewOnboard(S) {
       <button class="linkbtn" type="button" data-act="onboard" data-step="choose">رجوع</button>
     </form></section></div>`;
   if (step === 'baby') {
-    const hasOld = S.oldLocal && Object.keys(S.oldLocal.sleeps || {}).length;
-    const ob = S.oldLocal?.baby?.profile || {};
+    const ob = {};
     return `<div class="wrap center">
     <div class="steps" aria-hidden="true"><i class="on"></i><i class="on"></i></div>
     <div class="welcome"><h1>بيانات الطفل</h1><p class="muted">دي أول مرة بس. تقدر تعدّلها بعدين من «الإعدادات».</p></div>
@@ -54,7 +53,6 @@ export function viewOnboard(S) {
         <label>الطول (سم)<input id="bHeight" type="number" step="0.1" min="0" inputmode="decimal" value="${esc(ob.height ?? '')}" placeholder="اختياري"></label>
       </div>
       <label>الرضاعة<select id="bFeed">${['', 'طبيعية', 'صناعي', 'مختلطة'].map(o => `<option value="${o}">${o || 'اختياري'}</option>`).join('')}</select></label>
-      ${hasOld ? `<label class="check"><input type="checkbox" id="bImport" checked> انقل ${Object.keys(S.oldLocal.sleeps).length} نومة متسجلة على الموبايل ده</label>` : ''}
       <div class="err" id="bErr"></div>
       <button class="btn full" type="submit">ابدأ</button>
       <button class="linkbtn" type="button" data-act="onboard" data-step="choose">رجوع</button>
