@@ -260,7 +260,7 @@ async function notifyDose(d) {
   for (const k of Object.keys(seen)) if (seen[k] < Date.now() - 3 * DAY) delete seen[k];
   store.set('yz_notified', JSON.stringify(seen));
   const title = `ميعاد علاج ${S.baby?.name?.split(' ')[0] || 'يزن'}: ${d.m.name}`, body = d.m.dose || '';
-  try { const reg = await navigator.serviceWorker?.ready; if (reg) return reg.showNotification(title, { body, tag: d.id, icon: 'icons/app-192.png' }); } catch { /* fall through */ }
+  try { const reg = await navigator.serviceWorker?.ready; if (reg) return reg.showNotification(title, { body, tag: d.id, icon: 'icons/yazan-192.png' }); } catch { /* fall through */ }
   try { new Notification(title, { body, tag: d.id }); } catch { /* unsupported */ }
 }
 const beeped = {}; let actx = null;
