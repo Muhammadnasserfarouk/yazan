@@ -63,7 +63,7 @@ async function boot() {
   try { await db.init(); } catch (e) { console.warn(e); root.innerHTML = `<div class="wrap center"><p class="empty">مقدرتش أفتح التطبيق. اتأكد من النت وافتحه تاني.</p></div>`; return; }
   let unsubUser = null;
   db.onUser(user => {
-    S.user = user;
+    S.user = user; S.login = user ? db.loginName(user.email) : '';
     if (unsubUser) { unsubUser(); unsubUser = null; }
     if (!user) { stopFamily(); return go('auth'); }
     go('loading');
@@ -83,27 +83,29 @@ function save(promise, okMsg) {
 
 /* ---------- auth ---------- */
 const AUTH_ERR = {
-  'auth/email-already-in-use': 'الإيميل ده عليه حساب بالفعل. ادخل من «تسجيل الدخول».',
-  'auth/invalid-email': 'الإيميل مكتوب غلط.',
+  'auth/email-already-in-use': 'اسم المستخدم ده موجود بالفعل. اختار اسم تاني أو ادخل من «تسجيل الدخول».',
+  'auth/invalid-email': 'اسم المستخدم مكتوب غلط.',
   'auth/weak-password': 'الباسورد لازم يبقى ٦ حروف أو أرقام على الأقل.',
-  'auth/invalid-credential': 'الإيميل أو الباسورد غلط.',
-  'auth/wrong-password': 'الإيميل أو الباسورد غلط.',
-  'auth/user-not-found': 'مفيش حساب بالإيميل ده.',
+  'auth/invalid-credential': 'اسم المستخدم أو الباسورد غلط.',
+  'auth/wrong-password': 'الباسورد غلط.',
+  'auth/user-not-found': 'مفيش حساب باسم المستخدم ده.',
+  'auth/requires-recent-login': 'اخرج وادخل تاني، وبعدين غيّر الباسورد.',
   'auth/too-many-requests': 'محاولات كتير. استنى شوية وجرّب تاني.',
   'auth/network-request-failed': 'مفيش نت. اتأكد من الاتصال.',
 };
 async function onAuthSubmit(form) {
   const err = $('#aErr'), up = form.dataset.mode === 'signup', btn = form.querySelector('[type=submit]');
-  const name = up ? $('#aName').value.trim() : '', email = $('#aEmail').value.trim(), pass = $('#aPass').value;
+  const name = up ? $('#aName').value.trim() : '', login = $('#aLogin').value.trim(), pass = $('#aPass').value;
   if (up && !name) return (err.textContent = 'اكتب اسمك.');
-  if (!email || !pass) return (err.textContent = 'اكتب الإيميل والباسورد.');
+  if (!login || !pass) return (err.textContent = 'اكتب اسم المستخدم والباسورد.');
+  if (db.isUsername(login) && !/^[a-zA-Z0-9._-]{3,30}$/.test(login)) return (err.textContent = 'اسم المستخدم بالإنجليزي وأرقام بس، من غير مسافات.');
   err.textContent = ''; btn.disabled = true;
-  try { up ? await db.signUp(name, email, pass) : await db.signIn(email, pass); }
+  try { up ? await db.signUp(name, login, pass) : await db.signIn(login, pass); }
   catch (e) { err.textContent = AUTH_ERR[e.code] || 'حصلت مشكلة. جرّب تاني.'; btn.disabled = false; }
 }
 async function onResetPass() {
-  const email = $('#aEmail')?.value.trim(), err = $('#aErr');
-  if (!email) return (err.textContent = 'اكتب الإيميل الأول، وبعدين دوس «نسيت الباسورد».');
+  const email = $('#aLogin')?.value.trim(), err = $('#aErr');
+  if (!email || db.isUsername(email)) return (err.textContent = 'لو نسيت الباسورد، اطلب من ناصر يغيّرهولك.');
   try { await db.resetPassword(email); toast('بعتنا لينك تغيير الباسورد على الإيميل.'); err.textContent = ''; }
   catch (e) { err.textContent = AUTH_ERR[e.code] || 'مقدرتش أبعت الإيميل.'; }
 }
@@ -204,6 +206,14 @@ function onBabyEdit() {
   err.textContent = '';
   save(db.updateBaby(S.familyId, b), 'اتحفظت البيانات.');
 }
+async function onPwEdit(form) {
+  const err = $('#pwErr'), oldPw = $('#pwOld').value, newPw = $('#pwNew').value, btn = form.querySelector('[type=submit]');
+  if (newPw.length < 6) return (err.textContent = 'الباسورد الجديد لازم يبقى ٦ حروف أو أرقام على الأقل.');
+  btn.disabled = true; err.textContent = '';
+  try { await db.changePassword(oldPw, newPw); form.reset(); document.activeElement?.blur(); toast('اتغيّر الباسورد.'); }
+  catch (e) { err.textContent = e.code === 'auth/invalid-credential' || e.code === 'auth/wrong-password' ? 'الباسورد الحالي غلط.' : (AUTH_ERR[e.code] || 'مقدرتش أغيّر الباسورد.'); }
+  btn.disabled = false;
+}
 function onMeEdit() {
   const n = $('#meName').value.trim(); if (!n) return;
   document.activeElement?.blur();
@@ -298,7 +308,7 @@ document.addEventListener('click', e => {
   const b = e.target.closest('[data-act]'); if (!b) return;
   const fn = ACTIONS[b.dataset.act]; if (fn) fn(b, e);
 });
-const FORMS = { authForm: onAuthSubmit, babyForm: onBabySubmit, joinForm: onJoinSubmit, sleepForm: onSleepSubmit, medForm: onMedSubmit, babyEdit: onBabyEdit, meEdit: onMeEdit };
+const FORMS = { authForm: onAuthSubmit, babyForm: onBabySubmit, joinForm: onJoinSubmit, sleepForm: onSleepSubmit, medForm: onMedSubmit, babyEdit: onBabyEdit, meEdit: onMeEdit, pwEdit: onPwEdit };
 document.addEventListener('submit', e => { const fn = FORMS[e.target.id]; if (fn) { e.preventDefault(); fn(e.target); } });
 document.addEventListener('change', e => {
   if (e.target.id === 'sndToggle') { store.set('yz_sound', e.target.checked ? '1' : '0'); if (e.target.checked) beep(); }

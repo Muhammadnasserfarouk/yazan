@@ -30,14 +30,25 @@ export async function init() {
 
 /* ---------- auth ---------- */
 export const onUser = cb => A.onAuthStateChanged(auth, cb);
-export async function signUp(name, email, password) {
-  const cred = await A.createUserWithEmailAndPassword(auth, email, password);
+// People sign in with a username; it maps to an internal address on the project's own domain.
+const USER_DOMAIN = `${firebaseConfig?.projectId}.firebaseapp.com`;
+export const toEmail = login => { login = login.trim(); return login.includes('@') ? login : `${login.toLowerCase()}@${USER_DOMAIN}`; };
+export const loginName = email => (email || '').endsWith('@' + USER_DOMAIN) ? email.split('@')[0] : (email || '');
+export const isUsername = login => !login.includes('@');
+
+export async function signUp(name, login, password) {
+  const cred = await A.createUserWithEmailAndPassword(auth, toEmail(login), password);
   await A.updateProfile(cred.user, { displayName: name });
   await F.setDoc(F.doc(fs, 'users', cred.user.uid), { name, familyId: null });
   return cred.user;
 }
-export const signIn = (email, password) => A.signInWithEmailAndPassword(auth, email, password);
+export const signIn = (login, password) => A.signInWithEmailAndPassword(auth, toEmail(login), password);
 export const resetPassword = email => A.sendPasswordResetEmail(auth, email);
+export async function changePassword(current, next) {
+  const u = auth.currentUser;
+  await A.reauthenticateWithCredential(u, A.EmailAuthProvider.credential(u.email, current));
+  await A.updatePassword(u, next);
+}
 export const signOut = () => A.signOut(auth);
 
 /* ---------- family ---------- */

@@ -19,7 +19,7 @@ export function viewAuth(mode = 'signup') {
       <div class="tabs2" role="group"><button type="button" data-act="auth-mode" data-mode="signup" aria-pressed="${up}">حساب جديد</button><button type="button" data-act="auth-mode" data-mode="signin" aria-pressed="${!up}">تسجيل الدخول</button></div>
       <form id="authForm" data-mode="${mode}" novalidate>
         ${up ? `<label>اسمك<input id="aName" autocomplete="name" placeholder="مثلاً: محمد" required></label>` : ''}
-        <label>الإيميل<input id="aEmail" type="email" inputmode="email" autocomplete="email" dir="ltr" required></label>
+        <label>اسم المستخدم<input id="aLogin" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" dir="ltr" placeholder="nasser" required></label>
         <label>الباسورد<input id="aPass" type="password" autocomplete="${up ? 'new-password' : 'current-password'}" dir="ltr" minlength="6" required></label>
         ${up ? '<div class="small muted">٦ حروف أو أرقام على الأقل.</div>' : ''}
         <div class="err" id="aErr"></div>
@@ -144,7 +144,7 @@ function sessionRow(S, s) {
 export function viewToday(S) {
   const d0 = sod(Date.now()), t = dayStats(S.sleeps, d0), y = dayStats(S.sleeps, addDays(d0, -1));
   const todays = S.sleeps.filter(s => (s.end ?? Date.now()) > d0).reverse();
-  return `
+  return `${S.baby?.birthDate ? '' : `<div class="note">دخّل تاريخ ميلاد ${esc(firstName(S))} من «الإعدادات» عشان التحليل يبقى مناسب لسنّه.</div>`}
   <section class="card">
     <div class="head"><h2>النهارده</h2><span class="small muted">${fmtDay(d0)}</span></div>
     <div class="stats">
@@ -281,8 +281,13 @@ export function viewSettings(S) {
   </section>
   <section class="card"><h2>حسابي</h2>
     <form id="meEdit"><label>اسمي<input id="meName" value="${esc(S.user.displayName || f.memberNames?.[S.user.uid] || '')}" required></label>
-      <div class="small muted" dir="ltr" style="text-align:right">${esc(S.user.email || '')}</div>
+      <div class="small muted">اسم المستخدم: <span dir="ltr">${esc(S.login || '')}</span></div>
       <button class="btn ghost" type="submit">احفظ الاسم</button></form>
+    <form id="pwEdit"><h3>غيّر الباسورد</h3>
+      <label>الباسورد الحالي<input id="pwOld" type="password" autocomplete="current-password" dir="ltr" required></label>
+      <label>الباسورد الجديد<input id="pwNew" type="password" autocomplete="new-password" dir="ltr" minlength="6" required></label>
+      <div class="err" id="pwErr"></div>
+      <button class="btn ghost" type="submit">غيّر الباسورد</button></form>
     <button class="btn danger" type="button" data-act="logout">خروج</button>
   </section>
   <section class="card"><h2>نسخة احتياطية</h2>
