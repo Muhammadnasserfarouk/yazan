@@ -1,5 +1,5 @@
 // Offline support: app files are cached on install; fonts are cached the first time they load.
-const VERSION = 'yazan-v7';
+const VERSION = 'yazan-v8';
 const SHELL = ['./', './index.html', './css/app.css', './js/app.js', './js/views.js', './js/sleep.js', './js/util.js', './js/db.js', './js/config.js',
   './manifest.webmanifest', './icons/yazan-192.png', './icons/yazan-512.png', './icons/yazan-180.png', './icons/logo-128.png'];
 
