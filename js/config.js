@@ -1,14 +1,9 @@
-// Firebase web config — from Firebase console → Project settings → Your apps → Web app.
-// These values are public by design; access is protected by firestore.rules.
-// Leave as null until the Firebase project is created.
-export const firebaseConfig = null;
-/* Example:
+// Firebase web config (public by design; access is protected by firestore.rules).
 export const firebaseConfig = {
-  apiKey: "AIza...",
-  authDomain: "yazan-xxxx.firebaseapp.com",
-  projectId: "yazan-xxxx",
-  storageBucket: "yazan-xxxx.appspot.com",
-  messagingSenderId: "1234567890",
-  appId: "1:1234567890:web:abcdef"
+  apiKey: "AIzaSyCDDgyJsBhhC27QQizss353xldv5UtWh7g",
+  authDomain: "yazan-sleep-1103i4q7.firebaseapp.com",
+  projectId: "yazan-sleep-1103i4q7",
+  storageBucket: "yazan-sleep-1103i4q7.firebasestorage.app",
+  messagingSenderId: "1088915743986",
+  appId: "1:1088915743986:web:c6665648a00d31a3fb9c6b"
 };
-*/

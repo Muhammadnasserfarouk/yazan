@@ -1,5 +1,5 @@
 // Offline support: app files are cached on install; fonts are cached the first time they load.
-const VERSION = 'yazan-v3';
+const VERSION = 'yazan-v4';
 const SHELL = ['./', './index.html', './css/app.css', './js/app.js', './js/views.js', './js/sleep.js', './js/util.js', './js/db.js', './js/config.js',
   './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png', './icons/logo-128.png'];
 
