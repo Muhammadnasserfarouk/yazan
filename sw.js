@@ -1,7 +1,7 @@
 // Offline support: app files are cached on install; fonts are cached the first time they load.
-const VERSION = 'yazan-v5';
+const VERSION = 'yazan-v6';
 const SHELL = ['./', './index.html', './css/app.css', './js/app.js', './js/views.js', './js/sleep.js', './js/util.js', './js/db.js', './js/config.js',
-  './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png', './icons/logo-128.png'];
+  './manifest.webmanifest', './icons/app-192.png', './icons/app-512.png', './icons/app-180.png', './icons/logo-128.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
